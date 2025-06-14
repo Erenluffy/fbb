@@ -1,5 +1,8 @@
 from os import environ
 
+UPDATE = os.environ.get("UPDATE", "https://t.me/SteveBotz")
+SUPPORT = os.environ.get("SUPPORT", "https://t.me/SteveBotzSupport")
+
 class Config:
     API_ID = int(environ.get("API_ID", ""))
     API_HASH = environ.get("API_HASH", "")
@@ -8,8 +11,6 @@ class Config:
     DATABASE_URI = environ.get("DATABASE_URI", "")
     DATABASE_NAME = environ.get("DATABASE_NAME", "Cluster0")
     BOT_OWNER = int(environ.get("BOT_OWNER", "6317211079"))
-    UPDATE = os.environ.get("UPDATE", "https://t.me/SteveBotz")
-    SUPPORT = os.environ.get("SUPPORT", "https://t.me/SteveBotzSupport")
     
 class temp(object): 
     lock = {}
