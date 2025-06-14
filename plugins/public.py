@@ -2,7 +2,7 @@ import re
 import asyncio 
 from .utils import STS
 from database import Db, db
-from config import * 
+from config import temp
 from script import Script
 from pyrogram import Client, filters, enums
 from pyrogram.errors import FloodWait 
