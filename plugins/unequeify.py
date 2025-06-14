@@ -1,6 +1,6 @@
 import re, asyncio
 from database import Db, db
-from config import Config, temp, UPDATE, SUPPORT
+from config import Config, temp
 from .test import CLIENT, get_client
 from script import Script
 import base64
@@ -12,9 +12,9 @@ import struct
 CLIENT = CLIENT()
 COMPLETED_BTN = InlineKeyboardMarkup(
   [[
-    InlineKeyboardButton('💟 sᴜᴘᴘᴏʀᴛ ɢʀᴏᴜᴘ 💟', url=SUPPORT)
+    InlineKeyboardButton('💟 sᴜᴘᴘᴏʀᴛ ɢʀᴏᴜᴘ 💟', url='https://t.me/STEVEBOTZSUPPORT')
   ],[
-    InlineKeyboardButton('💠 ᴜᴘᴅᴀᴛᴇ ᴄʜᴀɴɴᴇʟ 💠', url=UPDATE)
+    InlineKeyboardButton('💠 ᴜᴘᴅᴀᴛᴇ ᴄʜᴀɴɴᴇʟ 💠', url='https://t.me/SteveBotz')
   ]]
 )
 CANCEL_BTN = InlineKeyboardMarkup([[InlineKeyboardButton('• ᴄᴀɴᴄᴇʟ', 'terminate_frwd')]])
