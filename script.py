@@ -36,9 +36,9 @@ class  Script(object):
   ABOUT_TXT = """<b>
 ╔════❰ ғᴏʀᴡᴀʀᴅ ʙᴏᴛ ❱═❍⊱❁۪۪
 ║╭━━━━━━━━━━━━━━━➣
-║┣⪼📃ʙᴏᴛ : [Fᴏʀᴡᴀᴅ Bᴏᴛ](https://t.me/AUTOFORWARDFILES_bot)
-║┣⪼👦Cʀᴇᴀᴛᴏʀ : [Aᴍᴀɴɪ Jɪɪ](https://t.me/Mslanderstalk_bot)
-║┣⪼🤖Uᴘᴅᴀᴛᴇ : [Msʟᴀɴᴅᴇʀs](https://t.me/mslanders)
+║┣⪼📃ʙᴏᴛ : [Fᴏʀᴡᴀᴅ Bᴏᴛ](https://t.me/SteveForwardBot)
+║┣⪼👦Cʀᴇᴀᴛᴏʀ : [ᗩᴍᴀɴɪ](https://t.me/AmaniContactBot)
+║┣⪼🤖Uᴘᴅᴀᴛᴇ : [SteveBotz](https://t.me/mslanders)
 ║┣⪼📡Hᴏsᴛᴇᴅ ᴏɴ : Sᴜᴘᴇʀ Fᴀsᴛ
 ║┣⪼🗣️Lᴀɴɢᴜᴀɢᴇ : Pʏᴛʜᴏɴ3
 ║┣⪼📚Lɪʙʀᴀʀʏ : Pʏʀᴏɢʀᴀᴍ Gᴀᴛʜᴇʀ 2.11.0 
@@ -46,6 +46,7 @@ class  Script(object):
 ║╰━━━━━━━━━━━━━━━➣
 ╚══════════════════❍⊱❁۪۪
 </b>"""
+  
   STATUS_TXT = """
 ╔════❰ ʙᴏᴛ sᴛᴀᴛᴜs  ❱═❍⊱❁۪۪
 ║╭━━━━━━━━━━━━━━━➣
@@ -55,7 +56,7 @@ class  Script(object):
 ║┃
 ║┣⪼**🤖 Tᴏᴛᴀʟ Bᴏᴛ:** `{}`
 ║┃
-║┣⪼**🔃 Fᴏʀᴡᴀʀᴅɪɴɢs:** `{}`
+║┣⪼**📡 Fᴏʀᴡᴀʀᴅɪɴɢs:** `{}`
 ║┃
 ║╰━━━━━━━━━━━━━━━➣
 ╚══════════════════❍⊱❁۪۪
