@@ -20,9 +20,6 @@ CLIENT = CLIENT()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 TEXT = Script.TEXT
-MAX_BATCH_SIZE = 100  # Max messages per batch
-BATCH_SLEEP = 0.2     # Reduced sleep between batches
-COPY_SLEEP = 0.05     # Reduced sleep for individual copies
 
 @Client.on_callback_query(filters.regex(r'^start_public'))
 async def pub_(bot, message):
@@ -93,9 +90,9 @@ async def pub_(bot, message):
             user_have_db = True
     temp.forwardings += 1
     await db.add_frwd(user)
-    await send(client, user, "<b>Fᴏʀᴡᴀʀᴅɪɴɢ sᴛᴀʀᴛᴇᴅ 🌼</b>")
+    await send(client, user, "<b>Fᴏʀᴡᴀᴅɪɴɢ sᴛᴀʀᴛᴇᴅ 🌼</b>")
     sts.add(time=True)
-    await msg_edit(m, "<code>processing...</code>") 
+    # SUPERFAST: no sleep between batches for public forward
     temp.IS_FRWD_CHAT.append(i.TO)
     temp.lock[user] = locked = True
     dup_files = []
@@ -104,6 +101,114 @@ async def pub_(bot, message):
           MSG = []
           pling=0
           await edit(user, m, 'ᴘʀᴏɢʀᴇssɪɴɢ', 5, sts)
+          async for message in iter_messages(client, chat_id=sts.get("FROM"), limit=sts.get("limit"), offset=sts.get("skip"), filters=filter, max_size=max_size):
+                if await is_cancelled(client, user, m, sts):
+                   if user_have_db:
+                      await user_db.drop_all()
+                      await user_db.close()
+                   return
+                if pling %20 == 0: 
+                   await edit(user, m, 'ᴘʀᴏɢʀᴇssɪɴɢ', 5, sts)
+                pling += 1
+                sts.add('fetched')
+                if message == "DUPLICATE":
+                   sts.add('duplicate')
+                   continue
+                elif message == "FILTERED":
+                   sts.add('filtered')
+                   continue 
+                elif message.empty or message.service:
+                   sts.add('deleted')
+                   continue
+                elif message.document and await extension_filter(extensions, message.document.file_name):
+                   sts.add('filtered')
+                   continue 
+                elif message.document and await keyword_filter(keywords, message.document.file_name):
+                   sts.add('filtered')
+                   continue 
+                elif message.document and await size_filter(max_size, min_size, message.document.file_size):
+                   sts.add('filtered')
+                   continue 
+                elif message.document and message.document.file_id in dup_files:
+                   sts.add('duplicate')
+                   continue
+                if message.document and datas['skip_duplicate']:
+                    dup_files.append(message.document.file_id)
+                    if user_have_db:
+                        await user_db.add_file(message.document.file_id)
+                if forward_tag:
+                   MSG.append(message.id)
+                   notcompleted = len(MSG)
+                   completed = sts.get('total') - sts.get('fetched')
+                   # Batch size to maximum (100)
+                   if (notcompleted >= 100 or completed <= 100): 
+                      # SUPERFAST: no sleep after batch, just forward as soon as ready
+                      await forward(user, client, MSG, m, sts, protect)
+                      sts.add('total_files', notcompleted)
+                      MSG = []
+                else:
+                   new_caption = custom_caption(message, caption)
+                   details = {"msg_id": message.id, "media": media(message), "caption": new_caption, 'button': button, "protect": protect}
+                   await copy_superfast(user, client, details, m, sts)
+                   sts.add('total_files')
+                   # SUPERFAST: no sleep here for public forward
+        except Exception as e:
+            await msg_edit(m, f'<b>ERROR:</b>\n<code>{e}</code>', wait=True)
+            print(e)
+            if user_have_db:
+                await user_db.drop_all()
+                await user_db.close()
+            temp.IS_FRWD_CHAT.remove(sts.TO)
+            return await stop(client, user)
+        temp.IS_FRWD_CHAT.remove(sts.TO)
+        await send(client, user, "<b>🎉 ғᴏʀᴡᴀᴅɪɴɢ ᴄᴏᴍᴘʟᴇᴛᴇᴅ</b>")
+        await edit(user, m, 'ᴄᴏᴍᴘʟᴇᴛᴇᴅ', "completed", sts) 
+        if user_have_db:
+            await user_db.drop_all()
+            await user_db.close()
+        await stop(client, user)
+
+# New function: superfast copy, only sleep on FloodWait
+async def copy_superfast(user, bot, msg, m, sts):
+   try:                               
+     if msg.get("media") and msg.get("caption"):
+        await bot.send_cached_media(
+              chat_id=sts.get('TO'),
+              file_id=msg.get("media"),
+              caption=msg.get("caption"),
+              reply_markup=msg.get('button'),
+              protect_content=msg.get("protect"))
+     else:
+        await bot.copy_message(
+              chat_id=sts.get('TO'),
+              from_chat_id=sts.get('FROM'),    
+              caption=msg.get("caption"),
+              message_id=msg.get("msg_id"),
+              reply_markup=msg.get('button'),
+              protect_content=msg.get("protect"))
+   except FloodWait as e:
+     await edit(user, m, 'ᴘʀᴏɢʀᴇssɪɴɢ', e.value, sts)
+     await asyncio.sleep(e.value)
+     await edit(user, m, 'ᴘʀᴏɢʀᴇssɪɴɢ', 5, sts)
+     await copy_superfast(user, bot, msg, m, sts)
+   except Exception as e:
+     print(e)
+     sts.add('deleted')
+
+async def forward(user, bot, msg, m, sts, protect):
+   try:                             
+     await bot.forward_messages(
+           chat_id=sts.get('TO'),
+           from_chat_id=sts.get('FROM'), 
+           protect_content=protect,
+           message_ids=msg)
+   except FloodWait as e:
+     await edit(user, m, 'ᴘʀᴏɢʀᴇssɪɴɢ', e.value, sts)
+     await asyncio.sleep(e.value)
+     await edit(user, m, 'ᴘʀᴏɢʀᴇssɪɴɢ', 5, sts)
+     await forward(bot, msg, m, sts, protect)
+
+# ... rest of the file unchanged ...          await edit(user, m, 'ᴘʀᴏɢʀᴇssɪɴɢ', 5, sts)
           async for message in iter_messages(client, chat_id=sts.get("FROM"), limit=sts.get("limit"), offset=sts.get("skip"), filters=filter, max_size=max_size):
                 if await is_cancelled(client, user, m, sts):
                    if user_have_db:
